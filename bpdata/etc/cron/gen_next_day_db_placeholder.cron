@@ -1,0 +1,8 @@
+# m h  dom mon dow   command
+
+# 生成第二天币对-交易所-时间 空白数据
+
+SCRIPT_DIR = /home/zhengdalong/huobi/bpdata/script
+LOG_DIR = /home/zhengdalong/logs
+
+50 23 * * * (python3 $SCRIPT_DIR/gen_next_day_db_placeholder.py >> $LOG_DIR/gen_next_day_db_placeholder.log 2>>$LOG_DIR/gen_next_day_db_placeholder.err)
