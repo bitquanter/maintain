@@ -1,20 +1,25 @@
 #!/usr/bin/env python
 # coding: utf-8
-import gevent
-from gevent import monkey
+import time
+from apscheduler.schedulers.background import BackgroundScheduler
 import utils
-from redis_monitor import set_redis_expire, check_active_key_count, stat_key_active, stat_key_active_count
-
-monkey.patch_all()
+from redis_monitor import set_tick_expire, check_tick_active, stat_tick_active, stat_tick_active_count
 
 
 if __name__ == '__main__':
+    '''
+    监控redis数据
+    '''
     utils.setup_basic_logging(True)
-    sre = gevent.spawn(set_redis_expire)
-    cc = gevent.spawn(check_active_key_count)
-    stat = gevent.spawn(stat_key_active)
-    stat_count = gevent.spawn(stat_key_active_count)
-    sre.join()
-    cc.join()
-    stat.join()
-    stat_count.join()
+    scheduler = BackgroundScheduler()
+    # 每隔1分钟执行一次 set_tick_expire 方法
+    scheduler.add_job(set_tick_expire, 'interval', minutes=1, start_date='2018-09-19 00:00:00')
+    # 每隔4分钟执行一次 check_tick_active 方法
+    scheduler.add_job(check_tick_active, 'interval', minutes=4, start_date='2018-09-19 00:00:00')
+    # 每隔4分钟执行一次 stat_tick_active 方法
+    scheduler.add_job(stat_tick_active, 'interval', minutes=4, start_date='2018-09-19 00:00:00')
+    # 每隔4分钟执行一次 stat_tick_active_count 方法
+    scheduler.add_job(stat_tick_active_count, 'interval', minutes=4, start_date='2018-09-19 00:00:00')
+    scheduler.start()
+    while True:
+        time.sleep(5)

@@ -1,6 +1,6 @@
 # coding: utf-8
 import json
-
+import time
 
 def parse_price(exchange, data):
     if exchange == 'huobi':
@@ -35,6 +35,7 @@ def _parse_huobi(data):
     if data and 'tick' in data:
         res['last_price'] = data['tick']['close']
         res['vol'] = data['tick']['vol']
+        res['ts'] = time.time()
     return res
     pass
 
@@ -43,6 +44,7 @@ def _parse_okex(data):
     res = {}
     res['last_price'] = data['data']['last']
     res['vol'] = data['data']['vol']
+    res['ts'] = time.time()
     return res
     pass
 
@@ -51,6 +53,7 @@ def _parse_binance(data):
     res = {}
     res['last_price'] = data['last']
     res['vol'] = data['volume']
+    res['ts'] = time.time()
     return res
     pass
 
@@ -60,6 +63,7 @@ def _parse_bitfinex(data):
     if len(data) == 2:
         res['last_price'] = data[1][-4]
         res['vol'] = data[1][-3]
+        res['ts'] = time.time()
     return res
     pass
 
@@ -69,6 +73,7 @@ def _parse_bibox(data):
     if data and 'result' in data:
         res['last_price'] = data['result']['last']
         res['vol'] = data['result']['vol']
+        res['ts'] = time.time()
     return res
     pass
 
@@ -78,6 +83,7 @@ def _parse_zb(data):
     if data and 'ticker' in data:
         res['last_price'] = data['ticker']['last']
         res['vol'] = data['ticker']['vol']
+        res['ts'] = time.time()
     return res
     pass
 
@@ -87,6 +93,7 @@ def _parse_bigone(data):
     if data and 'volume' in data:
         res['last_price'] = data['close']
         res['volume'] = data['volume']
+        res['ts'] = time.time()
     return res
     pass
 
@@ -96,6 +103,7 @@ def _parse_kucoin(data):
     if data and 'data' in data:
         res['last_price'] = data['data']['lastDealPrice']
         res['vol'] = data['data']['volValue']
+        res['ts'] = time.time()
     return res
     pass
 
@@ -105,6 +113,7 @@ def _parse_fcoin(data):
     if data and 'ticker' in data:
         res['last_price'] = data['ticker'][0]
         res['vol'] = data['ticker'][1]
+        res['ts'] = time.time()
     return res
     pass
 
@@ -114,6 +123,7 @@ def _parse_binmex(data):
     if data:
         res['last_price'] = None
         res['vol'] = None
+        res['ts'] = time.time()
     return res
     pass
 
@@ -123,5 +133,6 @@ def _parse_otcbtc(data):
     if data and 'ticker' in data:
         res['last_price'] = data['ticker']['last']
         res['vol'] = data['ticker']['vol']
+        res['ts'] = time.time()
     return res
     pass

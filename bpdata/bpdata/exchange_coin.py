@@ -98,15 +98,29 @@ def get_trade_symbol(exchange):
     pass
 
 
-def get_all_keys():
+def get_all_tick_keys():
     '''
-    获取所有redis键
+    获取所有ticker redis键
     '''
     keys = []
     for exchange in bp_coin_pair:
         for base_currency in bp_coin_pair[exchange]:
             for trade_currency in bp_coin_pair[exchange][base_currency]:
                 key = 'tick/%s/%s%s'%(exchange, trade_currency, base_currency)
+                keys.append(key)
+    return keys
+    pass
+
+
+def get_all_depth_keys():
+    '''
+    获取所有depth redis键
+    '''
+    keys = []
+    for exchange in bp_coin_pair:
+        for base_currency in bp_coin_pair[exchange]:
+            for trade_currency in bp_coin_pair[exchange][base_currency]:
+                key = 'depth/%s/%s%s'%(exchange, trade_currency, base_currency)
                 keys.append(key)
     return keys
     pass

@@ -3,6 +3,9 @@ import logging
 import sys
 import datetime
 import numpy as np
+import os
+from os.path import join
+import json
 
 
 def setup_basic_logging(debug=False):
@@ -59,3 +62,20 @@ def float_or_nan(x):
         return float(x)
     except Exception as e:
         return float('nan')
+
+
+def record_tick_active(check):
+    '''
+    数据存档
+    '''
+    base_dir = '/data/logs/'
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    path = join(base_dir, check['time'].split('_')[0])
+    if not os.path.exists(path):
+        os.makedirs(path)
+    file_name = '%s_tick_active_%s_lost_%s.json'%(check['time'],check['active_count'],check['lost_count'])
+    file_p = join(path, file_name)
+    with open(file_p, "w") as f:
+        json.dump(check, f)
+    pass

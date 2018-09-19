@@ -14,7 +14,6 @@ import threading
 import urllib
 import urllib.parse
 import urllib.request
-# from ref.bitmex_websocket import BitMEXWebsocket
 from config import get_config
 from redis_store import RedisStore
 from parse_price import parse_price
@@ -400,7 +399,7 @@ def _binmex_tick():
     data_map = {}
     for symbol in symbols:
         item['args'].append('instrument:%s'%(symbol))
-        data_map[symbol] = {'last_price':None, 'vol':None}
+        data_map[symbol] = {'last_price':None, 'vol':None, 'ts':None}
     ws.send(json.dumps(item))
     while(1):
         res=ws.recv()
@@ -413,6 +412,7 @@ def _binmex_tick():
                         data_map[sym]['last_price'] = data['lastPrice']
                     if 'volume' in data:
                         data_map[sym]['vol'] = data['volume']
+                    data_map[sym]['ts'] = time.time()
                     key = 'tick/binmex/%s'%(sym.lower())
                     res = json.dumps(data_map[sym])
                     store.set(key, res)
