@@ -78,11 +78,11 @@ bigone_coin['eos'] = ['meetone', 'edna', 'one', 'add', 'karma', 'atd', 'iq', 'ho
 bp_coin_pair['bigone'] = bigone_coin
 # binmex币对
 binmex_coin = {}
-binmex_coin['xbt'] = ['eth', 'fct', 'ltc', 'lsk']
+#binmex_coin['xbt'] = ['eth', 'fct', 'ltc', 'lsk']
 binmex_coin['usd'] = ['xbt', 'ltc', 'xlt']
-binmex_coin['eth'] = ['dao']
+#binmex_coin['eth'] = ['dao']
 #binmex_coin['xxx'] = ['xbt', 'eth', 'ltc', 'usd', 'fct', 'lsk']
-binmex_coin['cny'] = ['.a50', 'xbt']
+#binmex_coin['cny'] = ['.a50', 'xbt']
 bp_coin_pair['binmex'] = binmex_coin
 
 

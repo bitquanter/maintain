@@ -24,25 +24,6 @@ cfg = get_config()
 log = logging.getLogger('bpdata')
 store = RedisStore()
 
-def _http_get_request(url, params, add_to_headers=None):
-    headers = {
-        "Content-type": "application/x-www-form-urlencoded",
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
-    }
-    if add_to_headers:
-        headers.update(add_to_headers)
-    postdata = urllib.parse.urlencode(params)
-    response = requests.get(url, postdata, headers=headers, timeout=5) 
-    try:
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return
-    except BaseException as e:
-        print("httpGet failed, detail is:%s,%s" %(response.text,e))
-        return
-
 def huobi_tick():
     while True:
         try:
@@ -54,21 +35,38 @@ def huobi_tick():
 
 def _huobi_tick():
     # 连接火币行情
+    ws = create_connection("wss://api.huobi.br.com/ws")
     sym_dic = cfg.get_symbols('huobi')
     symbols = []
     for k in sym_dic:
         for i in sym_dic[k]:
-            tradeStr = '%s%s'%(i, k)
+            tradeStr = '%s%s'%(i,k)
             symbols.append(tradeStr)
-    while True:
-        for symbol in symbols:
-            params = {'symbol': symbol}
-            url = 'https://api.huobi.pro/market/detail/merged'
-            data = _http_get_request(url, params)
-            res = parse_price('huobi',data)
-            key = 'tick/huobi/%s'%(symbol)
-            store.set(key, json.dumps(res))
-            time.sleep(0.01)
+    i = 0
+    for s in symbols:
+        item = {}
+        item['sub'] = 'market.%s.detail'%(s)
+        item['id'] = 'id30' + str(i)
+        sub_str = json.dumps(item)
+        ws.send(sub_str)
+        i += 1
+    while(1):
+        compressData=ws.recv()
+        if not isinstance(compressData, bytes):
+            print(type(compressData))
+            break
+        result=gzip.decompress(compressData).decode('utf-8')
+        if result[:7] == '{"ping"':
+            ts=result[8:21]
+            pong='{"pong":'+ts+'}'
+            ws.send(pong)
+        else:
+            res = json.loads(result)
+            if 'tick' in res:
+                coin_pair = res['ch'].strip().split('.')[1]
+                key = 'tick/huobi/%s'%(coin_pair)
+                res = parse_price('huobi', res)
+                store.set(key, json.dumps(res))
     pass
 
 
@@ -389,51 +387,35 @@ def binmex_tick():
 
 def _binmex_tick():
     # 链接 binmex ws
-    #ws = create_connection("wss://www.bitmex.com/realtime")
+    ws = create_connection("wss://www.bitmex.com/realtime")
     sym_dic = cfg.get_symbols('binmex')
     symbols = []
     for k in sym_dic:
         for i in sym_dic[k]:
             tradeStr = '%s%s'%(i,k)
             symbols.append(tradeStr.upper())
-    print(len(symbols))
+    item = {}
+    item['op'] = 'subscribe'
+    item['args'] = []
+    data_map = {}
     for symbol in symbols:
-        subscriptions = "orderBookL2:" + symbol.upper()
-        url = 'wss://www.bitmex.com/realtime?subscribe={}'.format(subscriptions)
-        ws = websocket.WebSocketApp(url, on_message=_on_binmex)
-        wst = threading.Thread(target=lambda: ws.run_forever())
-        wst.daemon = True
-        wst.start()
-        conn_timeout = 5
-        while not ws.sock or not ws.sock.connected and conn_timeout:
-            time.sleep(1)
-            conn_timeout -= 1
-        if not conn_timeout:
-            ws.close()
-    while True:
-        time.sleep(0.1)
-    pass
-
-
-# def _on_binmex(ws, msg):
-#     msg = json.loads(msg)
-#     print(msg)
-#     pass
-
-
-def _binmex_restful():
-    sym_dic = cfg.get_symbols('binmex')
-    symbols = []
-    for k in sym_dic:
-        for i in sym_dic[k]:
-            tradeStr = '%s%s'%(i, k)
-            symbols.append(tradeStr.upper())
-    while True:
-        for sym in symbols:
-            url = 'https://www.bitmex.com/api/v1/orderBook/L2?symbol=%s&tick=25'%(sym)
-            response = requests.request("GET", url)
-            print(response.text)
-            print('=======================')
+        item['args'].append('instrument:%s'%(symbol))
+        data_map[symbol] = {'last_price':None, 'vol':None}
+    ws.send(json.dumps(item))
+    while(1):
+        res=ws.recv()
+        res_json = json.loads(res)
+        if 'table' in res_json and res_json['table']=='instrument':
+            if 'action' in res_json and res_json['action']=='update':
+                for data in res_json['data']:
+                    sym = data['symbol']
+                    if 'lastPrice' in data:
+                        data_map[sym]['last_price'] = data['lastPrice']
+                    if 'volume' in data:
+                        data_map[sym]['vol'] = data['volume']
+                    key = 'tick/binmex/%s'%(sym.lower())
+                    res = json.dumps(data_map[sym])
+                    store.set(key, res)
     pass
 
 
