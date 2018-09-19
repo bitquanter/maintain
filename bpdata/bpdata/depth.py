@@ -79,7 +79,7 @@ def _huobi_depth():
             res = json.loads(result)
             if 'tick' in res:
                 coin_pair = res['ch'].strip().split('.')[1]
-                key = 'tick/%s/%s'%('huobi',coin_pair)
+                key = 'depth/%s/%s'%('huobi',coin_pair)
                 store.set(key, json.dumps(res))
     pass
 
@@ -115,7 +115,7 @@ def _okex_depth():
         res = json.loads(result)[0]
         if 'data' in res and res['channel'] != 'addChannel':
             channel = res['channel'].strip().split('_')
-            key = 'tick/%s/%s%s'%('okex',channel[3], channel[4])
+            key = 'depth/%s/%s%s'%('okex',channel[3], channel[4])
             store.set(key, json.dumps(res))
     pass
 
@@ -179,7 +179,7 @@ def _binance_depth_onetoken():
         json_data = json.loads(data)
         if 'data' in json_data:
             currency = json_data['data']['contract']
-            key = 'tick/%s'%(currency.replace('.',''))
+            key = 'depth/%s'%(currency.replace('.',''))
             value = json.dumps(json_data['data'])
             store.set(key, value)
     pass
@@ -222,7 +222,7 @@ def _bitfinex_depth():
             res = json.loads(result)
             ch_id = res[0]
             if ch_id in id_map:
-                key = 'tick/bitfinex/%s'%(id_map[ch_id].lower())
+                key = 'depth/bitfinex/%s'%(id_map[ch_id].lower())
                 store.set(key, result)
     pass
 
@@ -248,7 +248,7 @@ def _bibox_depth():
             url = 'https://api.bibox.com/v1/mdata?cmd=depth&pair=%s&size=10'%(sym)
             response = requests.request("GET", url)
             #dep = json.loads(response.text)
-            key = 'tick/%s/%s'%('bibox',sym.replace('_','').lower())
+            key = 'depth/%s/%s'%('bibox',sym.replace('_','').lower())
             store.set(key, response.text)
             time.sleep(0.2)
     pass
@@ -281,7 +281,7 @@ def _zb_depth():
     while(1):
         result = ws.recv()
         res_json = json.loads(result)
-        key = 'tick/zb/%s'%(res_json['channel'].split('_')[0])
+        key = 'depth/zb/%s'%(res_json['channel'].split('_')[0])
         store.set(key, result)
     pass
 
@@ -307,7 +307,7 @@ def _bigone_depth():
             url = 'https://big.one/api/v2/markets/%s/depth'%(sym)
             response = requests.request("GET", url)
             #dep = json.loads(response.text)
-            key = 'tick/%s/%s'%('bigone',sym.replace('-','').lower())
+            key = 'depth/%s/%s'%('bigone',sym.replace('-','').lower())
             store.set(key, response.text)
             time.sleep(0.01)
     pass
@@ -334,7 +334,7 @@ def _kucoin_depth():
             url = 'https://api.kucoin.com/v1/%s/open/orders'%(sym)
             response = requests.request("GET", url)
             #dep = json.loads(response.text)
-            key = 'tick/%s/%s'%('kucoin',sym.replace('-','').lower())
+            key = 'depth/%s/%s'%('kucoin',sym.replace('-','').lower())
             store.set(key, response.text)
             time.sleep(0.01)
     pass
@@ -367,7 +367,7 @@ def _fcoin_depth():
         result=ws.recv()
         json_res = json.loads(result)
         if 'depth' in json_res['type']:
-            key = 'tick/fcoin/%s'%(json_res['type'].split('.')[2])
+            key = 'depth/fcoin/%s'%(json_res['type'].split('.')[2])
             store.set(key, result)
     pass
 
@@ -451,7 +451,7 @@ def _otcbtc_depth():
             url = 'https://bb.otcbtc.com/api/v2/depth?market=%s&limit=10'%(sym)
             response = requests.request("GET", url)
             #dep = json.loads(response.text)
-            key = 'tick/%s/%s'%('otcbtc',sym)
+            key = 'depth/%s/%s'%('otcbtc',sym)
             store.set(key, response.text)
             time.sleep(0.3)
     pass

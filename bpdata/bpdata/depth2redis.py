@@ -14,7 +14,7 @@ from depth import (huobi_depth,
     fcoin_depth,
     binmex_depth,
     otcbtc_depth,)
-from redis_monitor import set_redis_expire, check_active_key_count
+
 
 monkey.patch_all()
 
@@ -31,8 +31,6 @@ if __name__ == '__main__':
     g7 = gevent.spawn(kucoin_depth)
     g8 = gevent.spawn(fcoin_depth)
     g10 = gevent.spawn(otcbtc_depth)
-    sre = gevent.spawn(set_redis_expire)
-    cc = gevent.spawn(check_active_key_count)
     g0.join()
     g1.join()
     g2.join()
@@ -43,7 +41,5 @@ if __name__ == '__main__':
     g7.join()
     g8.join()
     g10.join()
-    sre.join()
-    cc.join()
 
     # g9 = gevent.spawn(binmex_depth)

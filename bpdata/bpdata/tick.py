@@ -66,7 +66,7 @@ def _huobi_tick():
             url = 'https://api.huobi.pro/market/detail/merged'
             data = _http_get_request(url, params)
             res = parse_price('huobi',data)
-            key = 'price/huobi/%s'%(symbol)
+            key = 'tick/huobi/%s'%(symbol)
             store.set(key, json.dumps(res))
             time.sleep(0.01)
     pass
@@ -103,7 +103,7 @@ def _okex_tick():
         res = json.loads(result)[0]
         if 'data' in res and res['channel'] != 'addChannel':
             channel = res['channel'].strip().split('_')
-            key = 'price/%s/%s%s'%('okex',channel[3], channel[4])
+            key = 'tick/%s/%s%s'%('okex',channel[3], channel[4])
             res = parse_price('okex',res)
             store.set(key, json.dumps(res))
     pass
@@ -139,7 +139,7 @@ def _binance_tick():
         json_data = json.loads(data)
         if 'data' in json_data:
             currency = json_data['data']['contract']
-            key = 'price/%s'%(currency.replace('.',''))
+            key = 'tick/%s'%(currency.replace('.',''))
             res = parse_price('binance', json_data['data'])
             store.set(key, json.dumps(res))
     pass
@@ -182,7 +182,7 @@ def _bitfinex_tick():
             res = json.loads(result)
             ch_id = res[0]
             if ch_id in id_map:
-                key = 'price/bitfinex/%s'%(id_map[ch_id].lower())
+                key = 'tick/bitfinex/%s'%(id_map[ch_id].lower())
                 res = parse_price('bitfinex', res)
                 store.set(key, json.dumps(res))
     pass
@@ -210,7 +210,7 @@ def _bibox_tick():
             response = requests.request("GET", url)
             res = json.loads(response.text)
             #dep = json.loads(response.text)
-            key = 'price/%s/%s'%('bibox',sym.replace('_','').lower())
+            key = 'tick/%s/%s'%('bibox',sym.replace('_','').lower())
             res = parse_price('bibox', res)
             store.set(key, json.dumps(res))
             time.sleep(0.2)
@@ -244,7 +244,7 @@ def _zb_tick():
     while(1):
         result = ws.recv()
         res_json = json.loads(result)
-        key = 'price/zb/%s'%(res_json['channel'].split('_')[0])
+        key = 'tick/zb/%s'%(res_json['channel'].split('_')[0])
         res = parse_price('zb', res_json)
         store.set(key, json.dumps(res))
     pass
@@ -266,7 +266,7 @@ def _bigone_tick():
         if 'html' not in response.text:
             res_json = json.loads(response.text)
             for r in res_json:
-                key = 'price/bigone/%s'%(r['market_id'].replace('-','').lower())
+                key = 'tick/bigone/%s'%(r['market_id'].replace('-','').lower())
                 res = parse_price('bigone', r)
                 store.set(key, json.dumps(res))
             time.sleep(0.5)
@@ -315,7 +315,7 @@ def _kucoin_tick():
             url = 'https://api.kucoin.com/v1/%s/open/tick'%(sym)
             response = requests.request("GET", url)
             tick_data = json.loads(response.text)
-            key = 'price/kucoin/%s'%(sym.replace('-','').lower())
+            key = 'tick/kucoin/%s'%(sym.replace('-','').lower())
             res = parse_price('kucoin',tick_data)
             store.set(key, json.dumps(res))
             time.sleep(0.05)
@@ -372,7 +372,7 @@ def _fcoin_tick():
         result=ws.recv()
         json_res = json.loads(result)
         if 'ticker' in json_res:
-            key = 'price/fcoin/%s'%(json_res['type'].split('.')[1])
+            key = 'tick/fcoin/%s'%(json_res['type'].split('.')[1])
             res = parse_price('fcoin', json_res)
             store.set(key, json.dumps(res))
     pass
@@ -470,7 +470,7 @@ def _otcbtc_tick():
         response = requests.request("GET", url)
         data = json.loads(response.text)
         for d in data:
-            key = 'price/otcbtc/%s'%(d.replace('_',''))
+            key = 'tick/otcbtc/%s'%(d.replace('_',''))
             res = parse_price('otcbtc',data[d])
             store.set(key, json.dumps(res))
         time.sleep(1)
