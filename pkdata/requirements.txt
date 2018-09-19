@@ -1,0 +1,6 @@
+sqlalchemy
+python-binance
+btfxwss
+fcoin
+pymysql
+requests
