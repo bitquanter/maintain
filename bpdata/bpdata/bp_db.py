@@ -5,6 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from config import get_config
+from redis_monitor import get_all_data
+
 
 cfg = get_config()
 
@@ -71,6 +73,16 @@ class FundIndex(Base):
     updated_at = Column(TIMESTAMP, default=datetime.datetime.now)
 
 
+class TickMonitor(Base):
+    """
+    监控redis记录状态
+    """
+    __tablename__ = 'tick_monitor'
+    id = Column(Integer, primary_key=True)
+    key_name = Column(Text, nullable=False, doc="")
+    value = Column(Text, nullable=True, doc="")
+    time = Column(TIMESTAMP, default=datetime.datetime.now)
+        
 
 
 class DbUtil(object):
@@ -113,4 +125,18 @@ class DbUtil(object):
                 upd.data = str(d['data'])
                 self._session.add(upd)
                 self._session.commit()
+
+    def write_tick_monitor(self, data):
+        for d in data:
+            obj = TickMonitor(key_name=d['key'], value=d['value'], time=d['time'])
+            self._session.add(obj)
+        self._session.commit()
         pass
+
+
+db = DbUtil()
+
+def write_to_db():
+    data = get_all_data()
+    db.write_tick_monitor(data)
+    pass

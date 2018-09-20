@@ -91,3 +91,16 @@ def stat_tick_active_count():
             stac[k]['lost'] += 1
     store.set('stat/tick_active', json.dumps(stac))
     pass
+
+
+def get_all_data():
+    res = []
+    for k in tick_keys:
+        item = {}
+        item['key'] = k
+        item['value'] = store.get(k)
+        dt = datetime.datetime.now()
+        item['time']=dt
+        res.append(item)
+    return res 
+    pass

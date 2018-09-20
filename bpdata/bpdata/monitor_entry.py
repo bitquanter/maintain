@@ -4,6 +4,7 @@ import time
 from apscheduler.schedulers.background import BackgroundScheduler
 import utils
 from redis_monitor import set_tick_expire, check_tick_active, stat_tick_active, stat_tick_active_count
+from bp_db import write_to_db
 
 
 if __name__ == '__main__':
@@ -20,6 +21,8 @@ if __name__ == '__main__':
     scheduler.add_job(stat_tick_active, 'interval', minutes=4, start_date='2018-09-19 00:00:00')
     # 每隔4分钟执行一次 stat_tick_active_count 方法
     scheduler.add_job(stat_tick_active_count, 'interval', minutes=4, start_date='2018-09-19 00:00:00')
+    # 写入数据库
+    scheduler.add_job(write_to_db, 'interval', minutes=4, start_date='2018-09-19 00:00:00')
     scheduler.start()
     while True:
         time.sleep(5)
