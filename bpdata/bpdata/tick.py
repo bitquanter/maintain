@@ -34,7 +34,8 @@ def huobi_tick():
 
 def _huobi_tick():
     # 连接火币行情
-    ws = create_connection("wss://api.huobi.br.com/ws")
+    #ws = create_connection("wss://api.huobi.br.com/ws")
+    ws = create_connection("wss://api.huobipro.com/ws")
     sym_dic = cfg.get_symbols('huobi')
     symbols = []
     for k in sym_dic:
@@ -114,7 +115,6 @@ def binance_tick():
         except:
             print('binance retry...')
     pass
-
 
 
 def _binance_tick():
@@ -457,4 +457,3 @@ def _otcbtc_tick():
             store.set(key, json.dumps(res))
         time.sleep(1)
     pass
-

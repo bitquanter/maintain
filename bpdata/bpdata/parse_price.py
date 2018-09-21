@@ -25,6 +25,8 @@ def parse_price(exchange, data):
         return _parse_binmex(data)
     elif exchange == 'otcbtc':
         return _parse_otcbtc(data)
+    elif exchange == '1token':
+        return _parse_1token(data)
     else:
         pass
     pass
@@ -134,5 +136,14 @@ def _parse_otcbtc(data):
         res['last_price'] = data['ticker']['last']
         res['vol'] = data['ticker']['vol']
         res['ts'] = time.time()
+    return res
+    pass
+
+
+def _parse_1token(data):
+    res = {}
+    res['last_price'] = data['last']
+    res['vol'] = data['volume']
+    res['ts'] = time.time()
     return res
     pass
