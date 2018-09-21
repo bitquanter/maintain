@@ -8,9 +8,25 @@ from download_raw_data import download_pk
 from parse_raw_data import parse_symbol_info
 from orm import DbUtil
 from config import get_config
+from exchange_coin import bp_coin_pair
 
 cfg = get_config()
 db = DbUtil()
+
+
+def update_widely_used_coins():
+    '''
+    更新常用币对
+    '''
+    widely_used = []
+    for exchange in bp_coin_pair:
+        for quote_currency in bp_coin_pair[exchange]:
+            for base_currency in bp_coin_pair[exchange][quote_currency]:
+                widely_used.append((exchange,base_currency,quote_currency))
+    for wu in widely_used:
+        db.update_widely_used(wu)
+    db.db_commit()
+    pass
 
 
 def init_data():
@@ -25,6 +41,9 @@ def init_data():
     # 写入数据库
     for symbol in symbols_info:
         db.save_symbol_info(symbol)
+    db.db_commit()
+    # 更新常用币对状态
+    update_widely_used_coins()
     print('完成入库')
     pass
 

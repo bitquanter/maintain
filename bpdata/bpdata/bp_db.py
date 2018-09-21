@@ -88,7 +88,6 @@ class TickMonitor(Base):
 class DbUtil(object):
     def __init__(self):
         self._engine = create_engine(cfg.get_sqlite_db_uri(), echo=False)
-        # self._engine = create_engine("mysql+pymysql://bitup:Ne88t9g7uSWVd]b@54.95.38.134:4423/bitup_sys?charset=utf8", pool_size=8, max_overflow=2, encoding='utf-8')
         Session = sessionmaker(bind=self._engine)
         self._session = Session()
         # self.drop_db()

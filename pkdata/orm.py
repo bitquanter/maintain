@@ -27,6 +27,7 @@ class SymbolInfo(Base):
     quote_currency = Column(Text, nullable=False, doc="本币")
     symbol = Column(Text, nullable=False, doc="symbol")
     exchange = Column(Text, nullable=False, doc="交易所")
+    widely_used = Column(Integer, nullable=False, doc="常用的币对:1为常用,0为默认不常用")
     price_precision = Column(Integer, nullable=True, doc='价格精度')
     amount_precision = Column(Integer, nullable=True, doc="数量精度")
     min_amount = Column(Float, nullable=True, doc="最小数量")
@@ -66,11 +67,32 @@ class DbUtil(object):
                                  quote_currency = symbol_info['quote_currency'],
                                  symbol = symbol_info['symbol'],
                                  exchange = symbol_info['exchange'],
+                                 widely_used = 0,
                                  price_precision = symbol_info['price_precision'],
                                  amount_precision = symbol_info['amount_precision'],
                                  min_amount = symbol_info['min_amount'])
             self._session.add(sym_obj)
+
+    def update_widely_used(self, widely_used):
+        # 查询表中是否已经有该条币对信息
+        symbol = widely_used[1] + widely_used[2]
+        exchange = widely_used[0]
+        symbol_info = self._session.query(SymbolInfo).filter(SymbolInfo.symbol == symbol).filter(SymbolInfo.exchange == exchange).first()
+        if symbol_info: # 更新
+            symbol_info.widely_used = 1
+            self._session.add(symbol_info)
+        else: # 添加
+            sym_obj = SymbolInfo(base_currency = widely_used[1],
+                                 quote_currency = widely_used[2],
+                                 symbol = symbol,
+                                 exchange = exchange,
+                                 widely_used = 1)
+            self._session.add(sym_obj)
+        pass
+
+    def db_commit(self):
         self._session.commit()
+        pass
 
     def qry_all_coin_exchange_pair(self):
         coin_ex_pair = self._session.query(SymbolInfo.symbol, SymbolInfo.exchange).all()
