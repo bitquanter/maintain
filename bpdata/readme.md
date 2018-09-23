@@ -4,9 +4,10 @@ bpdata包用于从交易所获取数据
 只适用于python3环境  
 安装前确保python3不缺少依赖  
 sudo apt update  
-sudo apt install python3.6-dev  
-运行命令  
-pip3 install -r requirements.txt  
+sudo apt install python3.6-dev  (下载python3.6源码编译安装)
+运行命令   virtualenv -p /usr/local/bin/python3 py3env
+          source py3env/bin/activate
+          pip3 install -r requirements.txt  （中间安装失败的包，直接pip3 install 包名）
 ### 文件说明：
 bpdata/tick2redis.py文件将交易所tick数据写入redis  
 bpdata/depth2redis.py文件将交易所depth数据写入redis  
