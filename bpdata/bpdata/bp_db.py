@@ -14,6 +14,7 @@ __all__ = [
     'FundIndexRawStaticData',
     'FundIndexRawDynamicData',
     'FundIndex',
+    'SymbolInfo',
     'DbUtil',
 ]
 
@@ -84,6 +85,23 @@ class TickMonitor(Base):
     time = Column(TIMESTAMP, default=datetime.datetime.now)
         
 
+class SymbolInfo(Base):
+    """
+    symbol 基础数据
+    """
+    __tablename__ = 'symbolinfo'
+    id = Column(Integer, primary_key=True)
+    base_currency = Column(Text, nullable=False, doc="交易的货币")
+    quote_currency = Column(Text, nullable=False, doc="本币")
+    symbol = Column(Text, nullable=False, doc="symbol")
+    exchange = Column(Text, nullable=False, doc="交易所")
+    widely_used = Column(Integer, nullable=False, doc="常用的币对:1为常用,0为默认不常用")
+    price_precision = Column(Integer, nullable=True, doc='价格精度')
+    amount_precision = Column(Integer, nullable=True, doc="数量精度")
+    min_amount = Column(Float, nullable=True, doc="最小数量")
+    created_at = Column(TIMESTAMP, default=datetime.datetime.now)
+    updated_at = Column(TIMESTAMP, default=datetime.datetime.now)
+
 
 class DbUtil(object):
     def __init__(self):
@@ -130,6 +148,14 @@ class DbUtil(object):
             obj = TickMonitor(key_name=d['key'], value=d['value'], time=d['time'])
             self._session.add(obj)
         self._session.commit()
+        pass
+
+    def get_all_symbol_info(self, widely_used):
+        if widely_used:
+            res = self._session.query(SymbolInfo).filter(SymbolInfo.widely_used==1).all()
+        else:
+            res = self._session.query(SymbolInfo).all()
+        return res
         pass
 
 

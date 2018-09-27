@@ -23,6 +23,7 @@ def update_widely_used_coins():
         for quote_currency in bp_coin_pair[exchange]:
             for base_currency in bp_coin_pair[exchange][quote_currency]:
                 widely_used.append((exchange,base_currency,quote_currency))
+    db.reset_widely_used()
     for wu in widely_used:
         db.update_widely_used(wu)
     db.db_commit()

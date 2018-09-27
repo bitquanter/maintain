@@ -90,6 +90,11 @@ class DbUtil(object):
             self._session.add(sym_obj)
         pass
 
+    def reset_widely_used(self):
+        self._session.query(SymbolInfo).update({'widely_used':0})
+        self._session.commit()
+        pass
+
     def db_commit(self):
         self._session.commit()
         pass
