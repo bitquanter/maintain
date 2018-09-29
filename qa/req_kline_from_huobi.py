@@ -69,26 +69,13 @@ def get_1min_klines(ws, begin, end, coin_pair):
             ws.send(tradeStr)
         else:
             res = json.loads(result)
-            if 'data' in res:
+            if 'data' in res and res['rep']==req['req'] and res['status']=='ok':
                 data = res['data']
-                data = sorted(data, key=id_sort)
                 return data
     pass
 
 
-def get_someday_kline(ws, date, coin_pair):
-    dt = to_timestamp(date)
-    dt_list = [[dt+i*3600*4-60, dt+(i+1)*3600*4-60] for i in range(6)]
-    res = []
-    for tim in dt_list:
-        kd = get_1min_klines(ws, tim[0], tim[1], coin_pair)
-        res += kd
-    return res
-    pass
-
-
-
-def get_klines():
+def get_someday_kline(date, coin_pair):
     while(1):
         try:
             ws = create_connection("wss://api.huobipro.com/ws")
@@ -96,6 +83,20 @@ def get_klines():
         except:
             print('connect ws error,retry...')
             time.sleep(5)
+    dt = to_timestamp(date)
+    dt_list = [[dt+i*3600*4-60, dt+(i+1)*3600*4-60] for i in range(6)]
+    res = []
+    for tim in dt_list:
+        kd = get_1min_klines(ws, tim[0], tim[1], coin_pair)
+        res += kd
+    res = sorted(res, key=id_sort)
+    ws.close()
+    return res
+    pass
+
+
+
+def get_klines():
     all_days = get_all_days(start_date, end_date)
     for day in all_days:
         for coin in coins:
@@ -104,12 +105,13 @@ def get_klines():
             if not os.path.exists(spec_path):
                 os.makedirs(spec_path)
             file_path = join(spec_path, '%s.csv'%(coin))
-            if not os.path.exists(file_path):
-                symbol = coin.replace('.','')
-                res = get_someday_kline(ws, day, symbol)
-                df = pd.DataFrame(res,columns=['id', 'open', 'close', 'low', 'high', 'amount', 'count', 'vol'])
-                df.to_csv(file_path)
-                time.sleep(0.5)
+            if os.path.exists(file_path):
+                continue
+            symbol = coin.replace('.','')
+            res = get_someday_kline(day, symbol)
+            df = pd.DataFrame(res, columns=['id', 'open', 'close', 'low', 'high', 'amount', 'count', 'vol'])
+            df.to_csv(file_path)
+            time.sleep(0.5)
     return True
 
 
