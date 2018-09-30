@@ -75,6 +75,41 @@ def get_price(security, start_date=None, end_date=None, frequency='1min', fields
 
 
 
+def RSI(data, fields, N1=6):
+    '''
+    计算公式：
+        LC:=REF(CLOSE,1);
+        RSI1:SMA(MAX(CLOSE-LC,0),N1,1)/SMA(ABS(CLOSE-LC),N1,1)*100;
+        LC赋值:1日前的收盘价
+        输出RSI1:收盘价-LC和0的较大值的N1日[1日权重]移动平均/收盘价-LC的绝对值的N1日[1日权重]移动平均*100
+    输入：
+        data：要处理的数据dataframe
+        field:要计算的字段
+        N1：统计的天数 N1
+    输出：
+        RSI 的值。
+    输出结果类型：
+        字典(dict)：键(key)为输入字段，值(value)为数据。
+    '''
+    import talib
+    import numpy as np
+    import six
+    # 计算 MA
+    rsi = {}
+    for field in fields:
+        nan_count = list(np.isnan(data[field])).count(True)
+        if nan_count == len(data[field]):
+            log.info("字段 %s 输入数据全是 NaN，该标的可能已退市、未上市或刚上市，返回 NaN 值数据。" % field)
+            rsi[field] = np.nan
+        else:
+            if nan_count > 0:
+                data.fillna(method="bfill", inplace=True)
+            close_RSI = data[field]
+            rsi[field] = talib.RSI(np.array(close_RSI), N1)[-1]
+    return rsi
+
+
+
 if __name__ == '__main__':
     df = get_price('huobi/btc.usdt',datetime.date(2018, 1, 1), datetime.date(2018, 1, 2), frequency='1min',fields=['close','vol'])
     print(df)
