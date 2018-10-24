@@ -5,7 +5,7 @@
 * bitmex
 
 # formula
-$\sum_{i=0}^N\int_{a}^{b}g(t,i)\text{d}t$
+$$\sum_{i=0}N\int_{a}{b}g(t,i)\text{d}t$$
 
 # 运行
 to do
